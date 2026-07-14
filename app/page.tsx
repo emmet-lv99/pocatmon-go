@@ -8,6 +8,7 @@ export default function Home() {
 
   useEffect(() => {
     let streamTracks: MediaStreamTrack[] = []
+    let animationFrameId: number // 🧼 루프 예약을 취소하기 위한 차단기 키값
 
     async function startCamera() {
       try {
@@ -28,10 +29,56 @@ export default function Home() {
         // [비디오 바인딩] React Ref에 스트림 주입
         if (videoRef.current) {
           videoRef.current.srcObject = stream
+
+          videoRef.current.onloadedmetadata = () => {
+            const videoWidth = videoRef.current!.videoWidth
+            const videoHeight = videoRef.current!.videoHeight
+            if (canvasRef.current) {
+              canvasRef.current.width = videoWidth
+              canvasRef.current.height = videoHeight
+              // 🚀 돔 해상도 설정이 완료된 직후 실시간 드로잉 루프 가동!
+              startDrawingLoop()
+            }
+          }
         }
       } catch (error) {
         console.error("카메라 하드웨어 연동 에러:", error)
       }
+    }
+
+    // 🎨 [실시간 애니메이션 루프 엔진]
+    function startDrawingLoop() {
+      const canvas = canvasRef.current
+      if (!canvas) return
+
+      const ctx = canvas.getContext("2d")
+      if (!ctx) return
+
+      // 테스트용 가상 고양이 좌표 ($$X$$축 이동 시뮬레이션 변수)
+      let fakeX = 50
+      let speed = 2
+
+      function render() {
+        // 1단계: 이전 프레임의 낙서 완전히 싹 청소하기
+        ctx!.clearRect(0, 0, canvas!.width, canvas!.height)
+
+        // 테스트용 좌표 연산 (벽에 부딪히면 튕기도록 가상 물리 시뮬레이션)
+        fakeX += speed
+        if (fakeX > canvas!.width - 150 || fakeX < 50) {
+          speed *= -1 // 방향 전환
+        }
+
+        // 2단계: 실시간 위치에 빨간색 추적 바운딩 박스 그리기
+        ctx!.strokeStyle = "#FF0000" // 테두리 색상 (빨강)
+        ctx!.lineWidth = 4 // 선 두께
+        ctx!.strokeRect(fakeX, 150, 100, 100) // 사각형 그리기 ($$X$$, $$Y$$, $$Width$$, $$Height$$)
+
+        // 3단계: 브라우저 주사율에 맞춰 다음 프레임 예약 (무한 재귀)
+        animationFrameId = requestAnimationFrame(render)
+      }
+
+      // 루프 첫 시동
+      render()
     }
 
     startCamera()
@@ -39,6 +86,9 @@ export default function Home() {
     // 🧼 [메모리 누수 차단] 컴포넌트 종료 시 카메라 장치를 즉시 완전히 물리적으로 종료
     return () => {
       streamTracks.forEach((track) => track.stop())
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId) // 애니메이션 무한 루프 예약 강제 취소
+      }
     }
   }, [])
 
