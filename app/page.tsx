@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react"
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     let streamTracks: MediaStreamTrack[] = []
@@ -42,7 +43,14 @@ export default function Home() {
   }, [])
 
   return (
-    <div style={{ width: "100%", maxWidth: "500px", margin: "0 auto" }}>
+    <div
+      style={{
+        position: "relative",
+        width: "100%",
+        maxWidth: "500px",
+        margin: "0 auto",
+      }}
+    >
       {/* 사파리 및 크롬 모바일 렌더링 무조건 보장 속성 패키지 */}
       <video
         ref={videoRef}
@@ -54,6 +62,17 @@ export default function Home() {
           height: "auto",
           borderRadius: "12px",
           backgroundColor: "#000",
+        }}
+      />
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          pointerEvents: "none",
         }}
       />
     </div>
