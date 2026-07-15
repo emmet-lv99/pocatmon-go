@@ -9,9 +9,8 @@ const MultiMapWithNoSSR = dynamic(() => import("../components/map/MultiMap"), {
   loading: () => (
     <div
       style={{
-        height: "400px",
+        height: "100vh",
         backgroundColor: "#f5f5f5",
-        borderRadius: "16px",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -26,19 +25,17 @@ export default function Home() {
   return (
     <main
       style={{
-        padding: "20px",
-        maxWidth: "600px",
         margin: "0 auto",
         fontFamily: "sans-serif",
       }}
     >
-      <header style={{ marginBottom: "20px", textAlign: "center" }}>
-        <h1 style={{ color: "#ff9900", margin: "0 0 10px 0" }}>
+      <header style={{ textAlign: "center" }}>
+        {/* <h1 style={{ color: "#ff9900", margin: "0 0 10px 0" }}>
           🍊 poCATmon 사냥 지도
         </h1>
         <p style={{ margin: 0, color: "#666" }}>
           현재 우리 동네에 출몰한 고양이들의 실시간 좌표 정보입니다.
-        </p>
+        </p> */}
       </header>
 
       {/* 📍 안전하게 동적 로딩된 지도 렌더링 */}
